@@ -1,16 +1,29 @@
 from nada_dsl import *
 
-class Stack:
-    def __init__(self):
-        self.stack = []
+class Node:
+    def __init__(self, data, next_node=None):
+        self.data = data
+        self.next = next_node
 
-    def push(self, value):
-        self.stack.append(value)
+def insert(head, data):
+    new_node = Node(data)
+    if not head:
+        return new_node
+    current = head
+    while current.next:
+        current = current.next
+    current.next = new_node
+    return head
 
-    def pop(self):
-        if len(self.stack) == 0:
-            return None  # or raise an exception
-        return self.stack.pop()
+def print_linked_list(head, party):
+    current = head
+    index = 0
+    outputs = []
+    while current:
+        outputs.append(Output(current.data, f"node_{index}", party))
+        current = current.next
+        index += 1
+    return outputs
 
 def nada_main():
     # Define the parties involved
@@ -18,28 +31,19 @@ def nada_main():
     party2 = Party(name="Party2")
     party3 = Party(name="Party3")
     
-    # Define secret inputs for the stack operations from each party
-    push_values = [
-        SecretInteger(Input(name="push1", party=party1)),
-        SecretInteger(Input(name="push2", party=party2)),
-        SecretInteger(Input(name="push3", party=party3))
-    ]
+    # Define secret inputs for the linked list nodes from each party
+    node1 = SecretInteger(Input(name="node1", party=party1))
+    node2 = SecretInteger(Input(name="node2", party=party2))
+    node3 = SecretInteger(Input(name="node3", party=party3))
+    node4 = SecretInteger(Input(name="node4", party=party1))
     
-    # Initialize the stack
-    stack = Stack()
+    # Insert nodes into the linked list
+    head = None
+    head = insert(head, node1)
+    head = insert(head, node2)
+    head = insert(head, node3)
+    head = insert(head, node4)
     
-    # Perform stack operations
-    for value in push_values:
-        stack.push(value)
-    
-    # Perform pop operations
-    pop1 = stack.pop()
-    pop2 = stack.pop()
-    pop3 = stack.pop()
-    
-    # Output the popped values to Party3
-    return [
-        Output(pop1, "pop1_output", party3),
-        Output(pop2, "pop2_output", party3),
-        Output(pop3, "pop3_output", party3)
-    ]
+    # Output the linked list nodes to Party3
+    outputs = print_linked_list(head, party3)
+    return outputs
